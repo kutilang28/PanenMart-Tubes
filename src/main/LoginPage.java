@@ -61,7 +61,7 @@ public class LoginPage extends JFrame{
         JLabel message = new JLabel("");
         message.setFont(fontText);
         message.setForeground(Color.RED);
-        message.setBounds(70, 140, 250, 25);
+        message.setBounds(70, 135, 250, 25);
         panel.add(message);
 
         // Login Button
@@ -92,16 +92,23 @@ public class LoginPage extends JFrame{
             }
 
             if (foundUser != null && foundUser.login(passwordInput)) {
-                loggedInStatus = true;
+            	this.dispose();
+            	
                 loggedInUser = foundUser;
+                String role = loggedInUser.getRole();
+                
+                if (role.equals("customer")) {
+//                    new Customer_Dashboard().setVisible(true);
+                } else if (role.equals("warehouse")) {
+//                    new Warehouse_Dashboard().setVisible(true);
+                } else if (role.equals("admin")) {
+//                    new Admin_Dashboard().setVisible(true);
+                }
+                
             } else {
                 message.setText("Username atau password salah");
             }
         });
-    }
-
-    public boolean getStatusUser(){
-        return loggedInStatus;
     }
 
     public User getUser() {
