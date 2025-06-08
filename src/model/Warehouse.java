@@ -18,19 +18,18 @@ public class Warehouse extends User {
 
     @Override
     public String getRole() {
-        return "Warehouse"; // Mengembalikan peran pengguna
+        return "Warehouse";
     }
 
-    // Metode spesifik Warehouse (contoh saja, tidak digunakan di GUI ini)
-    public void addProduct() { // Mengelola stok barang [cite: 40]
+    public void addProduct() {
         System.out.println("Warehouse " + name + " adding product.");
     }
 
-    public void checkStock() { // Mengelola stok barang [cite: 40]
+    public void checkStock() {
         System.out.println("Warehouse " + name + " checking stock.");
     }
 
-    public void getOrder() { // Memproses pesanan dan pembayaran [cite: 40]
+    public void getOrder() {
         System.out.println("Warehouse " + name + " getting order details.");
     }
 }

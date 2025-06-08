@@ -1,8 +1,8 @@
 package model;
 
 public class Customer extends User {
-    private String noTelp; // Atribut tambahan untuk Customer [cite: 36]
-    private String address; // Atribut tambahan untuk Customer [cite: 36]
+    private String noTelp;
+    private String address;
 
     public Customer(String name, String email, String password, String noTelp, String address) {
         super(name, email, password);
@@ -20,11 +20,7 @@ public class Customer extends User {
 
     @Override
     public String getRole() {
-        return "Customer"; // Mengembalikan peran pengguna
+        return "Customer";
     }
 
-    // Metode spesifik Customer (contoh saja, tidak digunakan di GUI ini)
-    public void searchProduct() { // Mencari dan memilih produk. [cite: 37]
-        System.out.println("Customer " + name + " searching for products.");
-    }
 }
