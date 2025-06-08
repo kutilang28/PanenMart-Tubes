@@ -5,6 +5,7 @@ import javax.swing.*;
 import model.*;
 import product.*;
 import shoppingCart.*;
+import transaction.*;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -37,16 +38,23 @@ public class Dashboard_Customer extends JFrame {
         searchField = new JTextField();
         JButton searchButton = new JButton("Search");
         JButton cartButton = new JButton("Keranjang");
+        JButton transaksiButton = new JButton("Transaksi");
         JButton profileButton = new JButton("Profil");
+        JButton loggout = new JButton("Log Out");
 
         searchButton.addActionListener((ActionEvent e) -> performSearch());
         cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang));
+        transaksiButton.addActionListener(e -> new TransaksiFrame());
         profileButton.addActionListener((ActionEvent e) -> new ProfilFrame(currentUser));
+        loggout.addActionListener((ActionEvent e) -> loggout());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(searchButton);
         buttonPanel.add(cartButton);
+        buttonPanel.add(transaksiButton);
         buttonPanel.add(profileButton);
+        buttonPanel.add(loggout);
+        
 
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(buttonPanel, BorderLayout.EAST);
@@ -125,5 +133,12 @@ public class Dashboard_Customer extends JFrame {
         card.add(detailButton, BorderLayout.SOUTH);
 
         return card;
+    }
+    
+    private void loggout() {
+    	this.dispose();
+    	
+    	LoginPage login = new LoginPage();
+    	login.setVisible(true);
     }
 }

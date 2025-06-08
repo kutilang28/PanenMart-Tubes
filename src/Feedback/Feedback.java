@@ -1,5 +1,7 @@
 package Feedback;
 
+import java.util.Date;
+
 public abstract class Feedback {
     private String idFeedBack;
     private String comment;
