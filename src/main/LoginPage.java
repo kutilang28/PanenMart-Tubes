@@ -105,7 +105,7 @@ public class LoginPage extends JFrame{
                 } else if (role.equals("Warehouse")) {
                     new Dashboard_Warehouse(loggedInUser).setVisible(true);
                 } else if (role.equals("Admin")) {
-//                    new Admin_Dashboard().setVisible(true);
+                    new Dashboard_Admin().setVisible(true);
                 }
                 
             } else {

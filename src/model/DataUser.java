@@ -13,4 +13,9 @@ public class DataUser {
         list.add(new Warehouse("warehouse", "warehouse@panenmart.com", "ware123", "0876543210"));
         return list;
     }
+    
+    public static void hapusUser(String email) {
+        userList.removeIf(u -> u.getEmail().equalsIgnoreCase(email));
+    }
+
 }

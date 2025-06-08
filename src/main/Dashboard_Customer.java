@@ -136,9 +136,10 @@ public class Dashboard_Customer extends JFrame {
     }
     
     private void loggout() {
-    	this.dispose();
-    	
-    	LoginPage login = new LoginPage();
-    	login.setVisible(true);
+    	int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+        if (konfirmasi == JOptionPane.YES_OPTION) {
+            this.dispose();
+            new LoginPage().setVisible(true);
+        }
     }
 }
