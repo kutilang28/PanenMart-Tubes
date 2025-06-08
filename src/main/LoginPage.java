@@ -8,16 +8,18 @@ import java.awt.event.ActionEvent;
 import model.*;
 
 public class LoginPage extends JFrame{
-    private final JPanel panel;
+
+	private static final long serialVersionUID = 1L;
+	private JPanel panel;
     private final Font fontTitle = new Font("Tahoma", Font.BOLD, 18);
     private final Font fontText = new Font("Tahoma", Font.PLAIN, 14);
     private final Font fontButton = new Font("Tahoma", Font.BOLD, 12);
 
-    private boolean loggedInStatus = false;
     private User foundUser = null;
     private User loggedInUser = null;
 
     public LoginPage(){
+    	// Mengatur Frame
         setTitle("PanenMart Login");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setSize(400, 280);
@@ -97,11 +99,12 @@ public class LoginPage extends JFrame{
                 loggedInUser = foundUser;
                 String role = loggedInUser.getRole();
                 
-                if (role.equals("customer")) {
-//                    new Customer_Dashboard().setVisible(true);
-                } else if (role.equals("warehouse")) {
+                if (role.equals("Customer")) {
+                	
+                    new Dashboard_Customer(loggedInUser).setVisible(true);
+                } else if (role.equals("Warehouse")) {
 //                    new Warehouse_Dashboard().setVisible(true);
-                } else if (role.equals("admin")) {
+                } else if (role.equals("Admin")) {
 //                    new Admin_Dashboard().setVisible(true);
                 }
                 
@@ -109,6 +112,13 @@ public class LoginPage extends JFrame{
                 message.setText("Username atau password salah");
             }
         });
+        
+        registerButton.addActionListener(e -> {
+        	this.dispose();
+            RegisterPage registerPage = new RegisterPage();
+            registerPage.setVisible(true);
+        });
+
     }
 
     public User getUser() {
