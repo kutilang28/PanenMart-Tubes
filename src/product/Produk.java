@@ -2,7 +2,7 @@ package product;
 
 import idGenerator.IDGenerator;
 
-public abstract class Produk {
+public class Produk {
     private String produkID;
     private String nama;
     private double harga;
@@ -35,7 +35,6 @@ public abstract class Produk {
         return stok;
     }
 
-    // Method fungsional
     public void tambahStok(int jumlah) {
         this.stok += jumlah;
     }

@@ -1,12 +1,11 @@
+// Dashboard_Customer.java
 package main;
 
 import javax.swing.*;
-
 import model.*;
 import product.*;
 import shoppingCart.*;
 import transaction.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
@@ -32,7 +31,6 @@ public class Dashboard_Customer extends JFrame {
 
         keranjang = new KeranjangBelanja();
 
-        // 🔍 Panel Search & Navigasi
         JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         searchField = new JTextField();
@@ -43,9 +41,9 @@ public class Dashboard_Customer extends JFrame {
         JButton loggout = new JButton("Log Out");
 
         searchButton.addActionListener((ActionEvent e) -> performSearch());
-        cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang));
-        transaksiButton.addActionListener(e -> new TransaksiFrame());
-        profileButton.addActionListener((ActionEvent e) -> new ProfilFrame(currentUser));
+        cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang, getCurrentUser()));
+        transaksiButton.addActionListener(e -> new TransaksiFrame(getCurrentUser()));
+        profileButton.addActionListener((ActionEvent e) -> new ProfilFrame(getCurrentUser()));
         loggout.addActionListener((ActionEvent e) -> loggout());
 
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -54,13 +52,11 @@ public class Dashboard_Customer extends JFrame {
         buttonPanel.add(transaksiButton);
         buttonPanel.add(profileButton);
         buttonPanel.add(loggout);
-        
 
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(buttonPanel, BorderLayout.EAST);
         add(searchPanel, BorderLayout.NORTH);
 
-        // Panel Produk
         productPanel = new JPanel();
         productPanel.setLayout(new GridLayout(0, 3, 15, 15));
         productPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -70,7 +66,6 @@ public class Dashboard_Customer extends JFrame {
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Ambil dummy produk
         productList = DataProduk.getDaftarProduk();
         filteredList = new ArrayList<>(productList);
         updateProductDisplay();
@@ -108,23 +103,14 @@ public class Dashboard_Customer extends JFrame {
         JLabel nameLabel = new JLabel("<html><b>" + produk.getNama() + "</b></html>", SwingConstants.CENTER);
         JLabel priceLabel = new JLabel("Rp " + String.format("%.0f", produk.getHarga()), SwingConstants.CENTER);
 
-        // Buat label kategori manual berdasar instance class produk
-        String kategori = "";
-        if (produk instanceof TanamanHias) {
-            kategori = "Tanaman Hias";
-        } else if (produk instanceof BibitTanaman) {
-            kategori = "Bibit Tanaman";
-        }
+        String kategori = produk instanceof TanamanHias ? "Tanaman Hias" : "Bibit Tanaman";
         JLabel kategoriLabel = new JLabel(kategori, SwingConstants.CENTER);
 
         JButton detailButton = new JButton("Beli");
-        detailButton.addActionListener(e -> new DetailProdukFrame(produk, keranjang));
+        detailButton.addActionListener(e -> new DetailProdukFrame(produk, keranjang, getCurrentUser()));
 
-        // Susun ulang supaya tombol di bawah
         card.add(nameLabel, BorderLayout.NORTH);
-
-        // Panel tengah untuk harga dan kategori
-        JPanel centerPanel = new JPanel(new GridLayout(2,1));
+        JPanel centerPanel = new JPanel(new GridLayout(2, 1));
         centerPanel.add(priceLabel);
         centerPanel.add(kategoriLabel);
         centerPanel.setBackground(Color.WHITE);
@@ -134,12 +120,43 @@ public class Dashboard_Customer extends JFrame {
 
         return card;
     }
-    
+
     private void loggout() {
-    	int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+        int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (konfirmasi == JOptionPane.YES_OPTION) {
             this.dispose();
             new LoginPage().setVisible(true);
         }
     }
-}
+
+    public void checkoutLangsung(Produk produk, int jumlah) {
+        Transaksi transaksi = new Transaksi(currentUser);
+        transaksi.addItem(new TransaksiItem(produk, jumlah));
+        transaksi.setStatus(TransaksiStatus.DIPROSES);
+
+        DataTransaksi.tambahTransaksi(getCurrentUser().getUserID(),transaksi);
+        JOptionPane.showMessageDialog(this, "Pembelian berhasil! Cek status di menu Transaksi.");
+    }
+
+    public void checkoutDariKeranjang() {
+        if (keranjang.getDaftarItem().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Keranjang kosong!");
+            return;
+        }
+
+        Transaksi transaksi = new Transaksi(getCurrentUser());
+        for (KeranjangItem item : keranjang.getDaftarItem()) {
+            transaksi.addItem(new TransaksiItem(item.getProduk(), item.getJumlah()));
+        }
+        transaksi.setStatus(TransaksiStatus.DIPROSES);
+
+        DataTransaksi.tambahTransaksi(getCurrentUser().getUserID(),transaksi);
+        keranjang.kosongkanKeranjang();
+
+        JOptionPane.showMessageDialog(this, "Checkout berhasil! Silakan cek menu Transaksi.");
+    }
+
+    public User getCurrentUser() {
+        return currentUser;
+    }
+} 

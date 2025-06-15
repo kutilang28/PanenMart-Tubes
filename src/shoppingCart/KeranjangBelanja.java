@@ -50,5 +50,9 @@ public class KeranjangBelanja {
         }
         System.out.println("Total: Rp " + getTotalKeranjang());
     }
+    
+    public void kosongkanKeranjang() {
+        itemList.clear();
+    }
 }
 

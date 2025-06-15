@@ -1,20 +1,17 @@
 package main;
 
 import model.*;
-import order.*;
+import transaction.*;
 import product.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.List;
 
 public class Dashboard_Warehouse extends JFrame {
-    private JTable productTable;
-    private DefaultTableModel productTableModel;
-    private JTable orderTable;
-    private DefaultTableModel orderTableModel;
+    private JTable productTable, orderTable, itemTable;
+    private DefaultTableModel productTableModel, orderTableModel, itemTableModel;
+    private JButton ubahStatusButton;
 
     public Dashboard_Warehouse(User warehouseUser) {
         setTitle("Dashboard Warehouse");
@@ -26,7 +23,6 @@ public class Dashboard_Warehouse extends JFrame {
 
         // Panel Produk
         JPanel productPanel = new JPanel(new BorderLayout(10, 10));
-
         productTableModel = new DefaultTableModel(new Object[]{"ID", "Nama", "Harga", "Stok", "Kategori"}, 0);
         productTable = new JTable(productTableModel);
         loadProductData();
@@ -42,7 +38,7 @@ public class Dashboard_Warehouse extends JFrame {
         productButtonPanel.add(deleteButton);
         productButtonPanel.add(loggout);
 
-        addButton.addActionListener(e -> new FormProdukFrame(productTableModel, null));	
+        addButton.addActionListener(e -> new FormProdukFrame(productTableModel, null));
         editButton.addActionListener(e -> editSelectedProduct());
         deleteButton.addActionListener(e -> deleteSelectedProduct());
         loggout.addActionListener(e -> loggout());
@@ -53,13 +49,30 @@ public class Dashboard_Warehouse extends JFrame {
 
         // Panel Order
         JPanel orderPanel = new JPanel(new BorderLayout(10, 10));
-        orderTableModel = new DefaultTableModel(new Object[]{"Order ID", "Customer", "Tanggal", "Total", "Status"}, 0);
+
+        orderTableModel = new DefaultTableModel(new Object[]{"Transaksi ID", "Customer", "Tanggal", "Total", "Status"}, 0);
         orderTable = new JTable(orderTableModel);
         loadOrderData();
 
-        orderPanel.add(new JScrollPane(orderTable), BorderLayout.CENTER);
-        tabbedPane.addTab("Daftar Order", orderPanel);
+        // Tabel item detail
+        itemTableModel = new DefaultTableModel(new Object[]{"Produk", "Jumlah", "Harga Satuan", "Total"}, 0);
+        itemTable = new JTable(itemTableModel);
 
+        orderTable.getSelectionModel().addListSelectionListener(e -> tampilkanDetailTransaksi());
+
+        // Tombol ubah status
+        ubahStatusButton = new JButton("Ubah Status");
+        ubahStatusButton.setEnabled(false);
+        ubahStatusButton.addActionListener(e -> ubahStatusTransaksi());
+
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(new JScrollPane(itemTable), BorderLayout.CENTER);
+        bottomPanel.add(ubahStatusButton, BorderLayout.SOUTH);
+
+        orderPanel.add(new JScrollPane(orderTable), BorderLayout.CENTER);
+        orderPanel.add(bottomPanel, BorderLayout.SOUTH);
+
+        tabbedPane.addTab("Daftar Order", orderPanel);
         add(tabbedPane, BorderLayout.CENTER);
         setVisible(true);
     }
@@ -74,14 +87,65 @@ public class Dashboard_Warehouse extends JFrame {
 
     private void loadOrderData() {
         orderTableModel.setRowCount(0);
-        for (Order order : DataOrder.getOrderList()) {
+        for (Transaksi t : DataTransaksi.getSemuaTransaksi()) {
             orderTableModel.addRow(new Object[]{
-                order.getOrderID(),
-                order.getCustomer().getName(),
-                order.getTanggalOrder().toString(),
-                order.getTotalHarga(),
-                order.getStatus().toString()
+                t.getTransaksiID(),
+                t.getCustomer().getName(),
+                t.getTanggalTransaksi(),
+                t.getTotalHarga(),
+                t.getStatus()
             });
+        }
+    }
+
+    private void tampilkanDetailTransaksi() {
+        int selectedRow = orderTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            String transaksiID = (String) orderTableModel.getValueAt(selectedRow, 0);
+            Transaksi transaksi = DataTransaksi.cariTransaksiByID(transaksiID);
+            if (transaksi == null) return;
+
+            // Tampilkan item
+            itemTableModel.setRowCount(0);
+            for (TransaksiItem item : transaksi.getItems()) {
+                itemTableModel.addRow(new Object[]{
+                    item.getProduk().getNama(),
+                    item.getJumlah(),
+                    item.getProduk().getHarga(),
+                    item.getSubtotal()
+                });
+            }
+
+            // Atur status tombol
+            if (transaksi.getStatus() == TransaksiStatus.SELESAI) {
+                ubahStatusButton.setEnabled(false);
+            } else {
+                ubahStatusButton.setEnabled(true);
+            }
+        } else {
+            itemTableModel.setRowCount(0);
+            ubahStatusButton.setEnabled(false);
+        }
+    }
+
+    private void ubahStatusTransaksi() {
+        int selectedRow = orderTable.getSelectedRow();
+        if (selectedRow >= 0) {
+            String transaksiID = (String) orderTableModel.getValueAt(selectedRow, 0);
+            Transaksi transaksi = DataTransaksi.cariTransaksiByID(transaksiID);
+            if (transaksi == null) return;
+
+            // Ubah status
+            if (transaksi.getStatus() == TransaksiStatus.DIPROSES) {
+                transaksi.setStatus(TransaksiStatus.DIANTAR);
+            } else if (transaksi.getStatus() == TransaksiStatus.DIANTAR) {
+                transaksi.setStatus(TransaksiStatus.SELESAI);
+                ubahStatusButton.setEnabled(false);
+            }
+
+            // Refresh tabel
+            loadOrderData();
+            tampilkanDetailTransaksi();
         }
     }
 
@@ -108,9 +172,9 @@ public class Dashboard_Warehouse extends JFrame {
             JOptionPane.showMessageDialog(this, "Pilih produk yang akan dihapus.");
         }
     }
-    
+
     private void loggout() {
-    	int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
+        int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);
         if (konfirmasi == JOptionPane.YES_OPTION) {
             this.dispose();
             new LoginPage().setVisible(true);

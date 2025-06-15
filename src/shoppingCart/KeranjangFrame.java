@@ -2,15 +2,19 @@ package shoppingCart;
 
 import javax.swing.*;
 import java.awt.*;
+import model.User;
 import product.Produk;
+import transaction.*;
 
 public class KeranjangFrame extends JFrame {
     private KeranjangBelanja keranjang;
     private JPanel itemPanel;
     private JLabel totalLabel;
+    private User currentUser;
 
-    public KeranjangFrame(KeranjangBelanja keranjang) {
+    public KeranjangFrame(KeranjangBelanja keranjang, User currentUser) {
         this.keranjang = keranjang;
+        this.currentUser = currentUser;
 
         setTitle("Keranjang Belanja");
         setSize(400, 400);
@@ -27,37 +31,42 @@ public class KeranjangFrame extends JFrame {
         add(totalLabel, BorderLayout.NORTH);
 
         JButton orderButton = new JButton("Order");
-        orderButton.addActionListener(e -> {
-            if (keranjang.getDaftarItem().isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Keranjang kosong!", "Info", JOptionPane.INFORMATION_MESSAGE);
-                return;
-            }
-
-            // Proses order: kurangi stok produk sesuai jumlah di keranjang
-            for (KeranjangItem item : keranjang.getDaftarItem()) {
-                Produk p = item.getProduk();
-                int jumlah = item.getJumlah();
-                if (p.getStok() < jumlah) {
-                    JOptionPane.showMessageDialog(this,
-                            "Stok tidak cukup untuk produk " + p.getNama(), "Error", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
-            }
-            // Jika semua stok cukup, kurangi stok dan bersihkan keranjang
-            for (KeranjangItem item : keranjang.getDaftarItem()) {
-                Produk p = item.getProduk();
-                int jumlah = item.getJumlah();
-                p.kurangiStok(jumlah);
-            }
-            keranjang.getDaftarItem().clear();
-            JOptionPane.showMessageDialog(this, "Order berhasil! Terima kasih.");
-            updateDisplay();
-        });
+        orderButton.addActionListener(e -> prosesOrder());
 
         add(orderButton, BorderLayout.SOUTH);
 
         updateDisplay();
         setVisible(true);
+    }
+
+    private void prosesOrder() {
+        if (keranjang.getDaftarItem().isEmpty()) {
+            JOptionPane.showMessageDialog(this, "Keranjang kosong!", "Info", JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+
+        for (KeranjangItem item : keranjang.getDaftarItem()) {
+            Produk p = item.getProduk();
+            int jumlah = item.getJumlah();
+            if (p.getStok() < jumlah) {
+                JOptionPane.showMessageDialog(this,
+                        "Stok tidak cukup untuk produk " + p.getNama(), "Error", JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        }
+
+        Transaksi transaksi = new Transaksi(currentUser);
+        for (KeranjangItem item : keranjang.getDaftarItem()) {
+            Produk p = item.getProduk();
+            int jumlah = item.getJumlah();
+            p.kurangiStok(jumlah);
+            transaksi.addItem(new TransaksiItem(p, jumlah));
+        }
+
+        DataTransaksi.tambahTransaksi(currentUser.getUserID(), transaksi);
+        keranjang.kosongkanKeranjang();  // ✅ gunakan method yang lebih tepat
+        JOptionPane.showMessageDialog(this, "Order berhasil! Transaksi tersimpan.");
+        updateDisplay();
     }
 
     private void updateDisplay() {

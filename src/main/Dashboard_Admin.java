@@ -1,15 +1,16 @@
 package main;
 
 import model.*;
-import order.*;
 import product.*;
+import transaction.*;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
-
 import admin.FormAdminRegisterFrame;
 
 import java.awt.*;
+import java.util.List;
+import java.util.Map;
 
 public class Dashboard_Admin extends JFrame {
     private JTable userTable, produkTable, orderTable;
@@ -21,7 +22,7 @@ public class Dashboard_Admin extends JFrame {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
-        // Panel atas (untuk logout)
+        // Panel atas (logout)
         JPanel panelAtas = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         JLabel welcomeLabel = new JLabel("Selamat Datang, Admin!");
         JButton logoutButton = new JButton("Log Out");
@@ -32,17 +33,11 @@ public class Dashboard_Admin extends JFrame {
         panelAtas.add(logoutButton);
         add(panelAtas, BorderLayout.NORTH);
 
+        // Tab utama
         JTabbedPane tabbedPane = new JTabbedPane();
-
-        // Tab User
         tabbedPane.addTab("Data User", createUserPanel());
-
-        // Tab Produk
         tabbedPane.addTab("Data Produk", createProdukPanel());
-
-        // Tab Order
-        tabbedPane.addTab("Data Order", createOrderPanel());
-
+        tabbedPane.addTab("Data Transaksi", createOrderPanel());
         add(tabbedPane, BorderLayout.CENTER);
 
         setVisible(true);
@@ -60,7 +55,7 @@ public class Dashboard_Admin extends JFrame {
         JButton tambahAdminButton = new JButton("Tambah Admin");
         JButton hapusUserButton = new JButton("Hapus User");
 
-        tambahAdminButton.addActionListener(e -> new FormAdminRegisterFrame(() -> loadUserData()));
+        tambahAdminButton.addActionListener(e -> new FormAdminRegisterFrame(this::loadUserData));
         hapusUserButton.addActionListener(e -> hapusSelectedUser());
 
         JPanel buttonPanel = new JPanel();
@@ -83,17 +78,13 @@ public class Dashboard_Admin extends JFrame {
     private void hapusSelectedUser() {
         int selectedRow = userTable.getSelectedRow();
         if (selectedRow >= 0) {
-            String email = (String) userTableModel.getValueAt(selectedRow, 2); // kolom ke-2 adalah Email
-            String role = (String) userTableModel.getValueAt(selectedRow, 3); // kolom ke-3 adalah Role
+            String email = (String) userTableModel.getValueAt(selectedRow, 2);
+            String role = (String) userTableModel.getValueAt(selectedRow, 3);
 
             if (role.equals("Admin")) {
-                // Hitung jumlah admin yang ada
-                long jumlahAdmin = DataUser.userList.stream()
-                        .filter(u -> u instanceof Admin)
-                        .count();
-
+                long jumlahAdmin = DataUser.userList.stream().filter(u -> u instanceof Admin).count();
                 if (jumlahAdmin <= 1) {
-                    JOptionPane.showMessageDialog(this, "Tidak dapat menghapus admin terakhir. Minimal harus ada 1 admin.");
+                    JOptionPane.showMessageDialog(this, "Tidak dapat menghapus admin terakhir.");
                     return;
                 }
             }
@@ -107,7 +98,6 @@ public class Dashboard_Admin extends JFrame {
             JOptionPane.showMessageDialog(this, "Pilih user yang ingin dihapus.");
         }
     }
-
 
     private JPanel createProdukPanel() {
         JPanel panel = new JPanel(new BorderLayout());
@@ -151,11 +141,15 @@ public class Dashboard_Admin extends JFrame {
     private JPanel createOrderPanel() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        String[] kolom = {"Order ID", "Customer", "Total", "Status", "Tanggal"};
+        String[] kolom = {"ID Transaksi", "Customer", "Total", "Status", "Tanggal"};
         orderTableModel = new DefaultTableModel(kolom, 0);
         orderTable = new JTable(orderTableModel);
         JScrollPane scroll = new JScrollPane(orderTable);
         panel.add(scroll, BorderLayout.CENTER);
+
+        JButton refreshButton = new JButton("Refresh");
+        refreshButton.addActionListener(e -> loadOrderData());
+        panel.add(refreshButton, BorderLayout.SOUTH);
 
         loadOrderData();
         return panel;
@@ -163,16 +157,19 @@ public class Dashboard_Admin extends JFrame {
 
     private void loadOrderData() {
         orderTableModel.setRowCount(0);
-        for (Order o : DataOrder.getOrderList()) {
+        List<Transaksi> semuaTransaksi = DataTransaksi.getSemuaTransaksi();
+
+        for (Transaksi t : semuaTransaksi) {
             orderTableModel.addRow(new Object[]{
-                o.getOrderID(),
-                o.getCustomer().getName(),
-                o.getTotalHarga(),
-                o.getStatus(),
-                o.getTanggalOrder()
+                t.getTransaksiID(),
+                t.getCustomer().getName(),
+                t.getTotalHarga(),
+                t.getStatus().name(),
+                t.getTanggalTransaksi()
             });
         }
     }
+
 
     private void logout() {
         int konfirmasi = JOptionPane.showConfirmDialog(this, "Yakin ingin logout?", "Konfirmasi", JOptionPane.YES_NO_OPTION);

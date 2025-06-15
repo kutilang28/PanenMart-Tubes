@@ -1,12 +1,12 @@
-package order;
+package transaction;
 
 import product.Produk;
 
-public class OrderItem {
-    private Produk produk;
+public class TransaksiItem {
+	private Produk produk;	
     private int jumlah;
 
-    public OrderItem(Produk produk, int jumlah) {
+    public TransaksiItem(Produk produk, int jumlah) {
         this.produk = produk;
         this.jumlah = jumlah;
     }

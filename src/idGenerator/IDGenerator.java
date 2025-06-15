@@ -21,7 +21,7 @@ public class IDGenerator {
         return "USR-" + getToday() + "-" + String.format("%04d", userCounter.getAndIncrement());
     }
 
-    public static String generateOrderID() {
-        return "ORD-" + getToday() + "-" + String.format("%04d", orderCounter.getAndIncrement());
+    public static String generateTransaksiID() {
+        return "TRS-" + getToday() + "-" + String.format("%04d", orderCounter.getAndIncrement());
     }
 }

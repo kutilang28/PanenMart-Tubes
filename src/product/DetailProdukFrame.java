@@ -2,15 +2,19 @@ package product;
 
 import javax.swing.*;
 import java.awt.*;
+import model.User;
 import shoppingCart.KeranjangBelanja;
+import transaction.*;
 
 public class DetailProdukFrame extends JFrame {
     private Produk produk;
     private KeranjangBelanja keranjang;
+    private User currentUser;
 
-    public DetailProdukFrame(Produk produk, KeranjangBelanja keranjang) {
+    public DetailProdukFrame(Produk produk, KeranjangBelanja keranjang, User currentUser) {
         this.produk = produk;
         this.keranjang = keranjang;
+        this.currentUser = currentUser;
 
         setTitle("Detail Produk - " + produk.getNama());
         setSize(400, 300);
@@ -44,9 +48,16 @@ public class DetailProdukFrame extends JFrame {
                     JOptionPane.showMessageDialog(this, "Stok tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+
                 // Kurangi stok
                 produk.kurangiStok(jumlah);
-                JOptionPane.showMessageDialog(this, "Pembelian berhasil! Terima kasih.");
+
+                // Simpan ke transaksi
+                Transaksi transaksi = new Transaksi(currentUser);
+                transaksi.addItem(new TransaksiItem(produk, jumlah));
+                DataTransaksi.tambahTransaksi(currentUser.getUserID(), transaksi);
+
+                JOptionPane.showMessageDialog(this, "Pembelian berhasil dan transaksi tersimpan!");
                 this.dispose();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Masukkan jumlah yang valid!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -61,6 +72,7 @@ public class DetailProdukFrame extends JFrame {
                     JOptionPane.showMessageDialog(this, "Stok tidak cukup!", "Error", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
+
                 keranjang.tambahProduk(produk, jumlah);
                 JOptionPane.showMessageDialog(this, "Produk ditambahkan ke keranjang!");
                 this.dispose();

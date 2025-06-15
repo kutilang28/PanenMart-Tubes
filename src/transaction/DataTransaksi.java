@@ -1,26 +1,34 @@
 package transaction;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import product.BibitTanaman;
-import product.Produk;
-import product.TanamanHias;
+import java.util.*;
 
 public class DataTransaksi {
-    public static List<Transaksi> daftarTransaksi = defaultTransaksi();
+    private static final Map<String, List<Transaksi>> transaksiMap = new HashMap<>();
 
-    private static List<Transaksi> defaultTransaksi() {
-        List<Transaksi> list = new ArrayList<>();
+    // Menambahkan transaksi untuk customer tertentu
+    public static void tambahTransaksi(String customerID, Transaksi transaksi) {
+        transaksiMap.computeIfAbsent(customerID, k -> new ArrayList<>()).add(transaksi);
+    }
 
-        List<Produk> order1 = new ArrayList<>();
-        order1.add(new TanamanHias("Anggrek Bulan", 40000, 5, true, "Ungu"));
-        list.add(new Transaksi(order1, "Diproses"));
+    // Mengambil daftar transaksi berdasarkan customerID
+    public static List<Transaksi> getTransaksiByCustomerID(String customerID) {
+        return transaksiMap.getOrDefault(customerID, new ArrayList<>());
+    }
+    
+    // Mencari daftar transaksi berdasarkan transaksiID
+    public static Transaksi cariTransaksiByID(String id) {
+        for (Transaksi t : getSemuaTransaksi()) {
+            if (t.getTransaksiID().equals(id)) return t;
+        }
+        return null;
+    }
 
-        List<Produk> order2 = new ArrayList<>();
-        order2.add(new BibitTanaman("Cabai Rawit", 10000.0, 10, false, 90));
-        list.add(new Transaksi(order2, "Dikirim"));
-
-        return list;
+    // Mengambil semua transaksi dari seluruh customer
+    public static List<Transaksi> getSemuaTransaksi() {
+        List<Transaksi> semua = new ArrayList<>();
+        for (List<Transaksi> list : transaksiMap.values()) {
+            semua.addAll(list);
+        }
+        return semua;
     }
 }
