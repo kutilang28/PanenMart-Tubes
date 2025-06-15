@@ -3,6 +3,7 @@ package shoppingCart;
 import javax.swing.*;
 import java.awt.*;
 import model.User;
+import moneyFormat.MoneyFormat;
 import product.Produk;
 import transaction.*;
 
@@ -64,7 +65,7 @@ public class KeranjangFrame extends JFrame {
         }
 
         DataTransaksi.tambahTransaksi(currentUser.getUserID(), transaksi);
-        keranjang.kosongkanKeranjang();  // ✅ gunakan method yang lebih tepat
+        keranjang.kosongkanKeranjang();
         JOptionPane.showMessageDialog(this, "Order berhasil! Transaksi tersimpan.");
         updateDisplay();
     }
@@ -80,7 +81,7 @@ public class KeranjangFrame extends JFrame {
             panel.setBorder(BorderFactory.createLineBorder(Color.GRAY));
             panel.add(new JLabel(produk.getNama()));
             panel.add(new JLabel("Jumlah: " + jumlah));
-            panel.add(new JLabel("Subtotal: Rp " + produk.getHarga() * jumlah));
+            panel.add(new JLabel("Subtotal: " + MoneyFormat.rupiah(produk.getHarga() * jumlah)));
 
             itemPanel.add(panel);
         }

@@ -3,6 +3,7 @@ package main;
 
 import javax.swing.*;
 import model.*;
+import moneyFormat.MoneyFormat;
 import product.*;
 import shoppingCart.*;
 import transaction.*;
@@ -101,7 +102,7 @@ public class Dashboard_Customer extends JFrame {
         card.setBackground(Color.WHITE);
 
         JLabel nameLabel = new JLabel("<html><b>" + produk.getNama() + "</b></html>", SwingConstants.CENTER);
-        JLabel priceLabel = new JLabel("Rp " + String.format("%.0f", produk.getHarga()), SwingConstants.CENTER);
+        JLabel priceLabel = new JLabel(MoneyFormat.rupiah(produk.getHarga()), SwingConstants.CENTER);
 
         String kategori = produk instanceof TanamanHias ? "Tanaman Hias" : "Bibit Tanaman";
         JLabel kategoriLabel = new JLabel(kategori, SwingConstants.CENTER);

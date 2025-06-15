@@ -3,6 +3,7 @@ package product;
 import javax.swing.*;
 import java.awt.*;
 import model.User;
+import moneyFormat.MoneyFormat;
 import shoppingCart.KeranjangBelanja;
 import transaction.*;
 
@@ -17,29 +18,74 @@ public class DetailProdukFrame extends JFrame {
         this.currentUser = currentUser;
 
         setTitle("Detail Produk - " + produk.getNama());
-        setSize(400, 300);
+        setSize(450, 400);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout(10, 10));
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
 
-        JPanel infoPanel = new JPanel(new GridLayout(0, 1, 5, 5));
-        infoPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+        // Warna dan Font
+        Color background = new Color(245, 250, 255);
+        Font titleFont = new Font("Segoe UI", Font.BOLD, 20);
+        Font labelFont = new Font("Segoe UI", Font.PLAIN, 14);
 
-        infoPanel.add(new JLabel("Nama: " + produk.getNama()));
-        infoPanel.add(new JLabel("Harga: Rp " + produk.getHarga()));
-        infoPanel.add(new JLabel("Stok: " + produk.getStok()));
+        JPanel containerPanel = new JPanel();
+        containerPanel.setLayout(new BoxLayout(containerPanel, BoxLayout.Y_AXIS));
+        containerPanel.setBorder(BorderFactory.createEmptyBorder(15, 20, 15, 20));
+        containerPanel.setBackground(background);
 
-        JTextField jumlahField = new JTextField("1");
-        infoPanel.add(new JLabel("Jumlah:"));
-        infoPanel.add(jumlahField);
+        JLabel titleLabel = new JLabel(produk.getNama());
+        titleLabel.setFont(titleFont);
+        titleLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        containerPanel.add(titleLabel);
 
-        add(infoPanel, BorderLayout.CENTER);
+        containerPanel.add(Box.createVerticalStrut(10));
 
-        JPanel buttonPanel = new JPanel(new FlowLayout());
+        // Info Produk
+        JPanel infoCard = new JPanel();
+        infoCard.setLayout(new BoxLayout(infoCard, BoxLayout.Y_AXIS));
+        infoCard.setBackground(Color.WHITE);
+        infoCard.setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createLineBorder(new Color(200, 200, 200)),
+                BorderFactory.createEmptyBorder(10, 15, 10, 15)
+        ));
 
+        infoCard.add(makeInfoLabel("Harga: Rp " + MoneyFormat.rupiah(produk.getHarga()), labelFont));
+        infoCard.add(makeInfoLabel("Stok: " + produk.getStok(), labelFont));
+
+        if (produk instanceof TanamanHias) {
+            TanamanHias th = (TanamanHias) produk;
+            infoCard.add(makeInfoLabel("Include Pot: " + (th.isPotInclude() ? "Ya" : "Tidak"), labelFont));
+            infoCard.add(makeInfoLabel("Warna Bunga: " + th.getWarnaBunga(), labelFont));
+        } else if (produk instanceof BibitTanaman) {
+            BibitTanaman bt = (BibitTanaman) produk;
+            infoCard.add(makeInfoLabel("Include Pot: " + (bt.isPotInclude() ? "Ya" : "Tidak"), labelFont));
+            infoCard.add(makeInfoLabel("Masa Panen: " + bt.getMasaPanen() + " hari", labelFont));
+        }
+
+        containerPanel.add(infoCard);
+        containerPanel.add(Box.createVerticalStrut(15));
+
+        // Input Jumlah
+        JPanel jumlahPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        jumlahPanel.setOpaque(false);
+        JLabel jumlahLabel = new JLabel("Jumlah:");
+        JTextField jumlahField = new JTextField("1", 5);
+        jumlahPanel.add(jumlahLabel);
+        jumlahPanel.add(jumlahField);
+        containerPanel.add(jumlahPanel);
+
+        add(containerPanel, BorderLayout.CENTER);
+
+        // Tombol
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
         JButton beliSekarangBtn = new JButton("Beli Sekarang");
-        JButton tambahKeranjangBtn = new JButton("Tambahkan ke Keranjang");
+        JButton tambahKeranjangBtn = new JButton("➕ Tambah ke Keranjang");
 
+        buttonPanel.add(beliSekarangBtn);
+        buttonPanel.add(tambahKeranjangBtn);
+        add(buttonPanel, BorderLayout.SOUTH);
+
+        // Aksi tombol
         beliSekarangBtn.addActionListener(e -> {
             try {
                 int jumlah = Integer.parseInt(jumlahField.getText());
@@ -49,10 +95,7 @@ public class DetailProdukFrame extends JFrame {
                     return;
                 }
 
-                // Kurangi stok
                 produk.kurangiStok(jumlah);
-
-                // Simpan ke transaksi
                 Transaksi transaksi = new Transaksi(currentUser);
                 transaksi.addItem(new TransaksiItem(produk, jumlah));
                 DataTransaksi.tambahTransaksi(currentUser.getUserID(), transaksi);
@@ -81,11 +124,13 @@ public class DetailProdukFrame extends JFrame {
             }
         });
 
-        buttonPanel.add(beliSekarangBtn);
-        buttonPanel.add(tambahKeranjangBtn);
-
-        add(buttonPanel, BorderLayout.SOUTH);
-
         setVisible(true);
+    }
+
+    private JLabel makeInfoLabel(String text, Font font) {
+        JLabel label = new JLabel(text);
+        label.setFont(font);
+        label.setBorder(BorderFactory.createEmptyBorder(3, 0, 3, 0));
+        return label;
     }
 }

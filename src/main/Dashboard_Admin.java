@@ -1,6 +1,7 @@
 package main;
 
 import model.*;
+import moneyFormat.MoneyFormat;
 import product.*;
 import transaction.*;
 
@@ -120,7 +121,7 @@ public class Dashboard_Admin extends JFrame {
         produkTableModel.setRowCount(0);
         for (Produk p : DataProduk.getDaftarProduk()) {
             String kategori = p instanceof TanamanHias ? "Tanaman Hias" : "Bibit Tanaman";
-            produkTableModel.addRow(new Object[]{p.getProdukID(), p.getNama(), p.getHarga(), p.getStok(), kategori});
+            produkTableModel.addRow(new Object[]{p.getProdukID(), p.getNama(), MoneyFormat.rupiah(p.getHarga()), p.getStok(), kategori});
         }
     }
 
@@ -163,7 +164,7 @@ public class Dashboard_Admin extends JFrame {
             orderTableModel.addRow(new Object[]{
                 t.getTransaksiID(),
                 t.getCustomer().getName(),
-                t.getTotalHarga(),
+                MoneyFormat.rupiah(t.getTotalHarga()),
                 t.getStatus().name(),
                 t.getTanggalTransaksi()
             });
