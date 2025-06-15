@@ -1,19 +1,22 @@
 package transaction;
 
-import product.Produk;
 import idGenerator.IDGenerator;
-
 import java.util.List;
-
+import shoppingCart.KeranjangItem; 
 
 public class Transaksi {
     private String transaksiID;
-    private List<Produk> daftarProduk;
-    private String status; // "Diproses", "Dikirim", "Telah Sampai"
+    // Ubah dari List<Produk> menjadi List<KeranjangItem>
+    private List<KeranjangItem> items; 
+    private String status;
 
-    public Transaksi(List<Produk> daftarProduk, String status) {
+    /**
+     * Konstruktor sekarang menerima List<KeranjangItem> untuk menyimpan
+     * produk beserta jumlahnya.
+     */
+    public Transaksi(List<KeranjangItem> items, String status) {
     	this.transaksiID = IDGenerator.generateOrderID();
-        this.daftarProduk = daftarProduk;
+        this.items = items;
         this.status = status;
     }
 
@@ -21,8 +24,11 @@ public class Transaksi {
         return transaksiID;
     }
 
-    public List<Produk> getDaftarProduk() {
-        return daftarProduk;
+    /**
+     * Getter diubah untuk mengembalikan List<KeranjangItem>.
+     */
+    public List<KeranjangItem> getItems() {
+        return items;
     }
 
     public String getStatus() {

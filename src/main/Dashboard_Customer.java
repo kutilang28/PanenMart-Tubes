@@ -1,16 +1,14 @@
 package main;
 
-import javax.swing.*;
-
-import model.*;
-import product.*;
-import shoppingCart.*;
-import transaction.*;
-
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import javax.swing.*;
+import model.*;
+import product.*;
+import shoppingCart.*;
+import transaction.*;
 
 public class Dashboard_Customer extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -20,10 +18,10 @@ public class Dashboard_Customer extends JFrame {
     private List<Produk> productList;
     private List<Produk> filteredList;
     private KeranjangBelanja keranjang;
-    private User currentUser;
+    private User currentUser; // Field ini penting
 
     public Dashboard_Customer(User userLogin) {
-        this.currentUser = userLogin;
+        this.currentUser = userLogin; // Simpan pengguna yang login
 
         setTitle("Dashboard Customer - E-Marketplace");
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -32,7 +30,6 @@ public class Dashboard_Customer extends JFrame {
 
         keranjang = new KeranjangBelanja();
 
-        // 🔍 Panel Search & Navigasi
         JPanel searchPanel = new JPanel(new BorderLayout(5, 5));
         searchPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         searchField = new JTextField();
@@ -43,7 +40,12 @@ public class Dashboard_Customer extends JFrame {
         JButton loggout = new JButton("Log Out");
 
         searchButton.addActionListener((ActionEvent e) -> performSearch());
-        cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang));
+        
+        // --- BAGIAN PENTING ---
+        // Saat tombol keranjang diklik, kirim data 'keranjang' dan 'currentUser'
+        cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang, currentUser));
+        // --- AKHIR BAGIAN PENTING ---
+
         transaksiButton.addActionListener(e -> new TransaksiFrame());
         profileButton.addActionListener((ActionEvent e) -> new ProfilFrame(currentUser));
         loggout.addActionListener((ActionEvent e) -> loggout());
@@ -55,22 +57,17 @@ public class Dashboard_Customer extends JFrame {
         buttonPanel.add(profileButton);
         buttonPanel.add(loggout);
         
-
         searchPanel.add(searchField, BorderLayout.CENTER);
         searchPanel.add(buttonPanel, BorderLayout.EAST);
         add(searchPanel, BorderLayout.NORTH);
 
-        // Panel Produk
-        productPanel = new JPanel();
-        productPanel.setLayout(new GridLayout(0, 3, 15, 15));
+        productPanel = new JPanel(new GridLayout(0, 3, 15, 15));
         productPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
         productPanel.setBackground(Color.WHITE);
-
         JScrollPane scrollPane = new JScrollPane(productPanel);
         scrollPane.getVerticalScrollBar().setUnitIncrement(16);
         add(scrollPane, BorderLayout.CENTER);
 
-        // Ambil dummy produk
         productList = DataProduk.getDaftarProduk();
         filteredList = new ArrayList<>(productList);
         updateProductDisplay();
@@ -78,6 +75,7 @@ public class Dashboard_Customer extends JFrame {
         setVisible(true);
     }
 
+    // Metode lain (performSearch, updateProductDisplay, createProductCard, loggout) tidak perlu diubah
     private void performSearch() {
         String keyword = searchField.getText().trim().toLowerCase();
         filteredList.clear();
@@ -87,7 +85,6 @@ public class Dashboard_Customer extends JFrame {
                 filteredList.add(p);
             }
         }
-
         updateProductDisplay();
     }
 
@@ -106,19 +103,13 @@ public class Dashboard_Customer extends JFrame {
         card.setBackground(Color.WHITE);
 
         JLabel nameLabel = new JLabel("<html><b>" + produk.getNama() + "</b></html>", SwingConstants.CENTER);
-        JLabel priceLabel = new JLabel("Rp " + String.format("%.0f", produk.getHarga()), SwingConstants.CENTER);
+        JLabel priceLabel = new JLabel("Rp " + String.format("%,.0f", produk.getHarga()), SwingConstants.CENTER);
 
-        // Buat label kategori manual berdasar instance class produk
-        String kategori = "";
-        if (produk instanceof TanamanHias) {
-            kategori = "Tanaman Hias";
-        } else if (produk instanceof BibitTanaman) {
-            kategori = "Bibit Tanaman";
-        }
+        String kategori = produk instanceof TanamanHias ? "Tanaman Hias" : "Bibit Tanaman";
         JLabel kategoriLabel = new JLabel(kategori, SwingConstants.CENTER);
 
         JButton detailButton = new JButton("Beli");
-        detailButton.addActionListener(e -> new DetailProdukFrame(produk, keranjang));
+        detailButton.addActionListener(e -> new DetailProdukFrame(produk, keranjang, currentUser));
 
         // Susun ulang supaya tombol di bawah
         card.add(nameLabel, BorderLayout.NORTH);

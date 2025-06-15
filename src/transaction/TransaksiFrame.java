@@ -1,30 +1,63 @@
 package transaction;
 
-import javax.swing.*;
 import java.awt.*;
+import java.util.List;
+import javax.swing.*;
+import product.Produk; 
+import shoppingCart.KeranjangItem;
 
 public class TransaksiFrame extends JFrame {
+    
+    private JTextArea textArea; 
+
     public TransaksiFrame() {
         setTitle("Riwayat Transaksi");
-        setSize(400, 400);
+        setSize(500, 450);
         setLocationRelativeTo(null);
-        setLayout(new BorderLayout());
+        setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        setLayout(new BorderLayout(10, 10));
 
-        JTextArea textArea = new JTextArea();
+        textArea = new JTextArea();
         textArea.setEditable(false);
+        textArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        textArea.setMargin(new Insets(5, 5, 5, 5));
+        add(new JScrollPane(textArea), BorderLayout.CENTER);
 
-        for (Transaksi transaksi : DataTransaksi.daftarTransaksi) {
-            textArea.append("Transaksi ID: " + transaksi.getTransaksiID() + "\n");
-            textArea.append("Status: " + transaksi.getStatus() + "\nProduk:\n");
-            for (var p : transaksi.getDaftarProduk()) {
-                textArea.append("- " + p.getNama() + " (Rp " + p.getHarga() + ")\n");
-            }
-            textArea.append("-----\n");
+        JPanel bottomPanel = new JPanel(); 
+        JButton refreshButton = new JButton("Muat Ulang Data");
+        refreshButton.addActionListener(e -> muatUlangDataTransaksi());
+        bottomPanel.add(refreshButton);
+        add(bottomPanel, BorderLayout.SOUTH);
+
+        muatUlangDataTransaksi();
+        setVisible(true);
+    }
+
+    private void muatUlangDataTransaksi() {
+        // Langsung akses ArrayList statis dari DataTransaksi
+        List<Transaksi> daftarTransaksi = DataTransaksi.daftarTransaksi;
+
+        textArea.setText("");
+
+        if (daftarTransaksi.isEmpty()) {
+            textArea.setText("Belum ada riwayat transaksi.");
+            return;
         }
 
-        JScrollPane scrollPane = new JScrollPane(textArea);
-        add(scrollPane, BorderLayout.CENTER);
+        StringBuilder sb = new StringBuilder();
+        for (Transaksi transaksi : daftarTransaksi) {
+            sb.append("ID Transaksi: ").append(transaksi.getTransaksiID()).append("\n");
+            sb.append("Status      : ").append(transaksi.getStatus()).append("\n");
+            sb.append("Produk Dibeli:\n");
+            for (KeranjangItem item : transaksi.getItems()) {
+                Produk p = item.getProduk(); // Ambil produk dari item
+                int jumlah = item.getJumlah(); // Ambil jumlah dari item
 
-        setVisible(true);
+                // Tampilkan nama produk, jumlah, dan harga
+                sb.append(String.format("  - %-20s (Jumlah: %d) @ Rp %,.0f\n", p.getNama(), jumlah, p.getHarga()));
+            }
+            sb.append("----------------------------------------\n");
+        }
+        textArea.setText(sb.toString());
     }
 }
