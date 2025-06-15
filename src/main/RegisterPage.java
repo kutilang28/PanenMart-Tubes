@@ -1,6 +1,7 @@
 package main;
 
 import model.*;
+
 import javax.swing.*;
 import java.awt.*;
 
@@ -56,12 +57,13 @@ public class RegisterPage extends JFrame {
         roleLabel.setBounds(30, 190, 100, 25);
         panel.add(roleLabel);
 
-        String[] roles = {"Customer", "Warehouse", "Admin"};
+        // HANYA Customer & Warehouse
+        String[] roles = {"Customer", "Warehouse"};
         roleCombo = new JComboBox<>(roles);
         roleCombo.setBounds(140, 190, 200, 25);
         panel.add(roleCombo);
 
-        // Label dan field untuk nomor telepon (Customer & Warehouse)
+        // Phone
         phoneLabel = new JLabel("Phone:");
         phoneLabel.setBounds(30, 230, 100, 25);
         panel.add(phoneLabel);
@@ -70,7 +72,7 @@ public class RegisterPage extends JFrame {
         phoneField.setBounds(140, 230, 200, 25);
         panel.add(phoneField);
 
-        // Label dan field untuk alamat (Customer only)
+        // Address (khusus Customer)
         addressLabel = new JLabel("Address:");
         addressLabel.setBounds(30, 270, 100, 25);
         panel.add(addressLabel);
@@ -84,9 +86,7 @@ public class RegisterPage extends JFrame {
         panel.add(registerButton);
 
         updateFieldsVisibility();
-
         roleCombo.addActionListener(e -> updateFieldsVisibility());
-
         registerButton.addActionListener(e -> registerUser());
     }
 
@@ -100,11 +100,6 @@ public class RegisterPage extends JFrame {
         } else if (role.equalsIgnoreCase("Warehouse")) {
             phoneLabel.setVisible(true);
             phoneField.setVisible(true);
-            addressLabel.setVisible(false);
-            addressField.setVisible(false);
-        } else { // Admin
-            phoneLabel.setVisible(false);
-            phoneField.setVisible(false);
             addressLabel.setVisible(false);
             addressField.setVisible(false);
         }
@@ -121,7 +116,6 @@ public class RegisterPage extends JFrame {
             return;
         }
 
-        // Cek email sudah dipakai atau belum
         for (User user : DataUser.userList) {
             if (user.getEmail().equalsIgnoreCase(email)) {
                 JOptionPane.showMessageDialog(this, "Email sudah terdaftar!", "Error", JOptionPane.ERROR_MESSAGE);
@@ -147,15 +141,14 @@ public class RegisterPage extends JFrame {
             }
             Warehouse newWarehouse = new Warehouse(name, email, password, phone);
             DataUser.userList.add(newWarehouse);
-
-        } else if (role.equalsIgnoreCase("Admin")) {
-            Admin newAdmin = new Admin(name, email, password);
-            DataUser.userList.add(newAdmin);
+        } else {
+            JOptionPane.showMessageDialog(this, "Role tidak valid!", "Error", JOptionPane.ERROR_MESSAGE);
+            return;
         }
 
         JOptionPane.showMessageDialog(this, "Registrasi berhasil!", "Sukses", JOptionPane.INFORMATION_MESSAGE);
         this.dispose();
-        
+
         LoginPage loginPage = new LoginPage();
         loginPage.setVisible(true);
     }

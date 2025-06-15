@@ -1,10 +1,11 @@
 package model;
 
 import javax.swing.*;
+
 import java.awt.*;
 
 public class ProfilFrame extends JFrame {
-    public ProfilFrame(User user) {
+	public ProfilFrame(User user) {
         setTitle("Profil Pengguna");
         setSize(400, 300);
         setLocationRelativeTo(null);
@@ -25,6 +26,7 @@ public class ProfilFrame extends JFrame {
         nameLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         emailLabel.setFont(new Font("Arial", Font.PLAIN, 14));
         roleLabel.setFont(new Font("Arial", Font.PLAIN, 14));
+        
 
         profilePanel.add(titleLabel);
         profilePanel.add(Box.createRigidArea(new Dimension(0, 20)));
@@ -36,6 +38,7 @@ public class ProfilFrame extends JFrame {
 
         add(profilePanel, BorderLayout.CENTER);
         setVisible(true);
+        
     }
 }
 

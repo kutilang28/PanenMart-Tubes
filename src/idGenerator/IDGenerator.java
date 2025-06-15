@@ -1,21 +1,27 @@
 package idGenerator;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class IDGenerator {
-    private static final AtomicInteger produkID = new AtomicInteger(1000);
-    private static final AtomicInteger userID = new AtomicInteger(5000);
-    private static final AtomicInteger orderID = new AtomicInteger(8000);
+    private static final AtomicInteger produkCounter = new AtomicInteger(1);
+    private static final AtomicInteger userCounter = new AtomicInteger(1);
+    private static final AtomicInteger orderCounter = new AtomicInteger(1);
+
+    private static String getToday() {
+        return new SimpleDateFormat("yyyyMMdd").format(new Date());
+    }
 
     public static String generateProdukID() {
-        return "P" + produkID.getAndIncrement();
+        return "PRD-" + getToday() + "-" + String.format("%04d", produkCounter.getAndIncrement());
     }
 
     public static String generateUserID() {
-        return "U" + userID.getAndIncrement();
+        return "USR-" + getToday() + "-" + String.format("%04d", userCounter.getAndIncrement());
     }
 
     public static String generateOrderID() {
-        return "O" + orderID.getAndIncrement();
+        return "ORD-" + getToday() + "-" + String.format("%04d", orderCounter.getAndIncrement());
     }
 }
