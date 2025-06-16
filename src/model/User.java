@@ -1,13 +1,16 @@
 package model;
 
+import idGenerator.IDGenerator;
 import interfaces.Login;
 
 public abstract class User implements Login {
+	protected String userID;
 	protected String name;
     protected String email;
     protected String password;
 
     public User(String name, String email, String password) {
+    	this.userID = IDGenerator.generateUserID();
         this.name = name;
         this.email = email;
         this.password = password;
@@ -31,7 +34,13 @@ public abstract class User implements Login {
     public void logout() {
         System.out.println(name + " logged out.");
     }
+    
+    public String getUserID() {
+		return userID;
+	}
 
-    // Metode abstrak
-    public abstract String getRole();
+	public abstract String getRole();
+    
+    
+    
 }
