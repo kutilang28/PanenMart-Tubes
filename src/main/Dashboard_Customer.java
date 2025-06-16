@@ -1,16 +1,17 @@
 // Dashboard_Customer.java
 package main;
 
+import feedback.FeedbackFrame;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.util.ArrayList;
+import java.util.List;
 import javax.swing.*;
 import model.*;
 import moneyFormat.MoneyFormat;
 import product.*;
 import shoppingCart.*;
 import transaction.*;
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.util.ArrayList;
-import java.util.List;
 
 public class Dashboard_Customer extends JFrame {
     private static final long serialVersionUID = 1L;
@@ -38,19 +39,22 @@ public class Dashboard_Customer extends JFrame {
         JButton searchButton = new JButton("Search");
         JButton cartButton = new JButton("Keranjang");
         JButton transaksiButton = new JButton("Transaksi");
+        JButton feedbackButton = new JButton("Feedback");
         JButton profileButton = new JButton("Profil");
         JButton loggout = new JButton("Log Out");
 
         searchButton.addActionListener((ActionEvent e) -> performSearch());
         cartButton.addActionListener((ActionEvent e) -> new KeranjangFrame(keranjang, getCurrentUser()));
         transaksiButton.addActionListener(e -> new TransaksiFrame(getCurrentUser()));
+        feedbackButton.addActionListener(e -> new FeedbackFrame(currentUser));
         profileButton.addActionListener((ActionEvent e) -> new ProfilFrame(getCurrentUser()));
         loggout.addActionListener((ActionEvent e) -> loggout());
-
+        
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonPanel.add(searchButton);
         buttonPanel.add(cartButton);
         buttonPanel.add(transaksiButton);
+        buttonPanel.add(feedbackButton);
         buttonPanel.add(profileButton);
         buttonPanel.add(loggout);
 

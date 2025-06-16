@@ -1,21 +1,23 @@
 package main;
 
+import admin.FormAdminRegisterFrame;
+import feedback.DataFeedback;
+import feedback.Feedback;
+import feedback.LayananFeedback;
+import feedback.SaranFitur;
+import java.awt.*;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import model.*;
 import moneyFormat.MoneyFormat;
 import product.*;
 import transaction.*;
 
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
-import admin.FormAdminRegisterFrame;
-
-import java.awt.*;
-import java.util.List;
-import java.util.Map;
-
 public class Dashboard_Admin extends JFrame {
-    private JTable userTable, produkTable, orderTable;
-    private DefaultTableModel userTableModel, produkTableModel, orderTableModel;
+    private JTable userTable, produkTable, orderTable, feedbackTable;
+    private DefaultTableModel userTableModel, produkTableModel, orderTableModel, feedbackTableModel;
 
     public Dashboard_Admin() {
         setTitle("Dashboard Admin - E-Marketplace");
@@ -39,6 +41,7 @@ public class Dashboard_Admin extends JFrame {
         tabbedPane.addTab("Data User", createUserPanel());
         tabbedPane.addTab("Data Produk", createProdukPanel());
         tabbedPane.addTab("Data Transaksi", createOrderPanel());
+        tabbedPane.addTab("Data Feedback", createFeedbackPanel());
         add(tabbedPane, BorderLayout.CENTER);
 
         setVisible(true);
@@ -167,6 +170,53 @@ public class Dashboard_Admin extends JFrame {
                 MoneyFormat.rupiah(t.getTotalHarga()),
                 t.getStatus().name(),
                 t.getTanggalTransaksi()
+            });
+        }
+
+    }
+     private JPanel createFeedbackPanel() {
+        JPanel panel = new JPanel(new BorderLayout());
+        feedbackTableModel = new DefaultTableModel(new Object[]{"ID Feedback", "Customer", "Tanggal", "Kategori", "Detail"}, 0){
+            @Override public boolean isCellEditable(int row, int column) { return false; }
+        };
+        feedbackTable = new JTable(feedbackTableModel);
+        feedbackTable.setRowHeight(30);
+        feedbackTable.getColumnModel().getColumn(4).setPreferredWidth(400); // Perlebar kolom detail
+
+        panel.add(new JScrollPane(feedbackTable), BorderLayout.CENTER);
+
+        JButton refreshButton = new JButton("Refresh Data Feedback");
+        refreshButton.addActionListener(e -> loadFeedbackData());
+        JPanel bottomPanel = new JPanel();
+        bottomPanel.add(refreshButton);
+        panel.add(bottomPanel, BorderLayout.SOUTH);
+
+        loadFeedbackData(); // Muat data saat panel pertama kali dibuat
+        return panel;
+    }
+    
+    private void loadFeedbackData() {
+        feedbackTableModel.setRowCount(0);
+        SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
+
+        for (Feedback fb : DataFeedback.getSemuaFeedback()) {
+            String kategori = "N/A";
+            String detail = "N/A";
+
+            if (fb instanceof LayananFeedback lf) {
+                kategori = "Layanan";
+                detail = "Jenis: " + lf.getJenisLayanan() + " | Rating: " + lf.getTingkatPelayanan() + "/10";
+            } else if (fb instanceof SaranFitur sf) {
+                kategori = "Saran Fitur";
+                detail = "Judul: " + sf.getJudulFitur() + " | Deskripsi: " + sf.getDeskripsiFitur();
+            }
+
+            feedbackTableModel.addRow(new Object[]{
+                fb.getFeedbackID(),
+                fb.getCustomer().getName(),
+                sdf.format(fb.getTanggal()),
+                kategori,
+                detail
             });
         }
     }
