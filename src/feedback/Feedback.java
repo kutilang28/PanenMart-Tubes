@@ -1,8 +1,8 @@
 package feedback;
 
 import idGenerator.IDGenerator;
-import model.User;
 import java.util.Date;
+import model.User;
 
 public abstract class Feedback {
     private String feedbackID;
@@ -10,7 +10,7 @@ public abstract class Feedback {
     private Date tanggal;
 
     public Feedback(User customer) {
-        this.feedbackID = IDGenerator.generateTransaksiID(); // Bisa menggunakan ID generator yang sama
+        this.feedbackID = IDGenerator.generateFeedbackID(); // Bisa menggunakan ID generator yang sama
         this.customer = customer;
         this.tanggal = new Date();
     }

@@ -24,4 +24,8 @@ public class IDGenerator {
     public static String generateTransaksiID() {
         return "TRS-" + getToday() + "-" + String.format("%04d", orderCounter.getAndIncrement());
     }
+    
+    public static String generateFeedbackID() {
+        return "FDB-" + getToday() + "-" + String.format("%04d", orderCounter.getAndIncrement());
+    }
 }
